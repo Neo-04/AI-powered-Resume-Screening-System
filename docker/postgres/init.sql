@@ -1,0 +1,3 @@
+-- Placeholder for database initialization scripts.
+-- Files in this directory are executed automatically by the official
+-- postgres image on first container startup (docker-entrypoint-initdb.d).
