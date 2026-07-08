@@ -20,9 +20,7 @@ _EXP_RE = re.compile(
     r"(\d+\+?\s*(?:-\s*\d+)?\s*(?:years|yrs|year))(?:\s+of\s+experience)?", re.I
 )
 
-# Academic qualifications: degrees + branches/streams. Ambiguous tokens
-# (BE, IT, ECE, ...) are matched case-sensitively to avoid false positives
-# like the word "be" or "it".
+# Academic qualifications: degrees + branches/streams.
 _QUALIFICATION_PATTERNS = [
     ("B.Tech", re.compile(r"\bB\.?\s?Tech\b", re.I)),
     ("M.Tech", re.compile(r"\bM\.?\s?Tech\b", re.I)),

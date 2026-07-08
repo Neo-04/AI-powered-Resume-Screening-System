@@ -28,3 +28,6 @@ class ParsedResume(BaseModel):
     experience: List[str] = Field(default_factory=list)
     projects: List[str] = Field(default_factory=list)
     achievements: List[str] = Field(default_factory=list)
+    degree: str = ""
+    branch: str = ""
+    experience_years: float = 0.0

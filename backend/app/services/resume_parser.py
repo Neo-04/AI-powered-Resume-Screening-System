@@ -4,8 +4,9 @@ from typing import Dict, List, Optional
 from backend.app.schemas.resume import ParsedResume
 from backend.app.services.resume_service import get_resume
 from backend.app.utils import parsing
+from backend.app.utils import qualifications
 
-# Optional structured storage (Phase 3 output cache).
+# Optional structured storage 
 structured_resume_store: dict[str, ParsedResume] = {}
 
 # Unchanged — kept exactly as defined.
@@ -30,8 +31,7 @@ RESUME_SECTION_ALIASES = {
     ],
 }
 
-# Extra cue words for common non-aliased sections, all routed to achievements.
-# (RESUME_SECTION_ALIASES is left untouched; this only adds header *cues*.)
+# Extra words for common non-aliased sections, all displayed in achievements.
 _EXTRA_ACHIEVEMENT_CUES = {
     "competitive", "programming", "coding", "dsa", "problem", "leetcode",
     "codeforces", "hackathon", "hackathons", "contest", "contests", "profiles",
@@ -52,7 +52,6 @@ _HEADER_LOOKUP = {
 
 
 def _build_category_keywords(aliases: Dict[str, List[str]]) -> Dict[str, str]:
-    """Derive unambiguous single-word category cues from the aliases."""
     token_categories: Dict[str, set] = {}
     for canonical, alias_list in aliases.items():
         for alias in alias_list:
@@ -65,7 +64,7 @@ def _build_category_keywords(aliases: Dict[str, List[str]]) -> Dict[str, str]:
     }
 
 
-# Alias-derived cues take precedence; extra cues fill in common extra sections.
+#extra achievement cues are added to the category cues for achievements section
 _CATEGORY_CUES: Dict[str, str] = {
     **{token: "achievements" for token in _EXTRA_ACHIEVEMENT_CUES},
     **_build_category_keywords(RESUME_SECTION_ALIASES),
@@ -90,12 +89,7 @@ def _is_bullet(line: str) -> bool:
 
 
 def _looks_like_header(line: str) -> bool:
-    """Rule-based heuristic for a section header (no ML).
-
-    Headers are short, title/caps-styled, and free of the punctuation,
-    digits, and bullets that mark ordinary content lines. This guard keeps
-    prose that merely contains a cue word from being treated as a header.
-    """
+    #Rule-based heuristic for a section header (no ML)
     core = line.rstrip(":").strip()
     if not (1 <= len(core) <= 45):
         return False
@@ -118,13 +112,8 @@ def _split_resume_sections(text: str) -> Dict[str, List[str]]:
     """Group lines under canonical sections.
 
     1. Exact alias match                       -> that category.
-    2. Header-like AND carries a section cue    -> that cue's category.
-    3. Everything else                          -> content of current section.
-
-    A line becomes a section header ONLY via (1) or (2). Title-cased content
-    lines without a cue word (e.g. an institution name) stay as content, so
-    they are never mistaken for headers.
-    """
+    2. Header-like and carries a section cue    -> that cue's category.
+    3. Everything else                          -> content of current section."""
     sections: Dict[str, List[str]] = {"_preamble": []}
     current = "_preamble"
 
@@ -159,15 +148,19 @@ def parse_resume(resume_id: str) -> ParsedResume:
 
     skills_source = " ".join(sections.get("skills", [])) if sections.get("skills") else text
 
+    education_text = " ".join(sections.get("education", []))
+
     parsed = ParsedResume(
         resume_id=resume_id,
-        # Name read from the top lines directly, independent of sectioning.
         name=parsing.guess_name(parsing.to_lines(text)[:6]),
         skills=parsing.extract_skills(skills_source),
         education=parsing.section_items(sections.get("education", [])),
         experience=parsing.section_items(sections.get("experience", [])),
         projects=parsing.section_items(sections.get("projects", [])),
         achievements=parsing.summarize_items(sections.get("achievements", [])),
+        degree=qualifications.first_degree(education_text),
+        branch=qualifications.first_branch(education_text),
+        experience_years=qualifications.years_of_experience(sections.get("experience", [])),
     )
 
     structured_resume_store[resume_id] = parsed
