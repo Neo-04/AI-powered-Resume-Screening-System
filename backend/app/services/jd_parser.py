@@ -3,9 +3,8 @@ from typing import List
 
 from backend.app.schemas.jd import ParsedJD
 from backend.app.services.jd_service import get_job_description
-from backend.app.utils import parsing
+from backend.app.utils import parsing, qualifications
 
-# Optional structured storage (Phase 3 output cache).
 structured_jd_store: dict[str, ParsedJD] = {}
 
 JD_SECTION_ALIASES = {
@@ -20,39 +19,6 @@ _EXP_RE = re.compile(
     r"(\d+\+?\s*(?:-\s*\d+)?\s*(?:years|yrs|year))(?:\s+of\s+experience)?", re.I
 )
 
-# Academic qualifications: degrees + branches/streams.
-_QUALIFICATION_PATTERNS = [
-    ("B.Tech", re.compile(r"\bB\.?\s?Tech\b", re.I)),
-    ("M.Tech", re.compile(r"\bM\.?\s?Tech\b", re.I)),
-    ("B.E.", re.compile(r"\bB\.E\.?\b", re.I)),
-    ("M.E.", re.compile(r"\bM\.E\.?\b", re.I)),
-    ("B.Sc", re.compile(r"\bB\.?Sc\b", re.I)),
-    ("M.Sc", re.compile(r"\bM\.?Sc\b", re.I)),
-    ("BCA", re.compile(r"\bBCA\b")),
-    ("MCA", re.compile(r"\bMCA\b")),
-    ("MBA", re.compile(r"\bMBA\b")),
-    ("PhD", re.compile(r"\bPh\.?D\.?\b", re.I)),
-    ("Bachelor's", re.compile(r"\bBachelor(?:'s|s)?\b", re.I)),
-    ("Master's", re.compile(r"\bMaster(?:'s|s)?\b", re.I)),
-    ("Diploma", re.compile(r"\bDiploma\b", re.I)),
-    ("Computer Science", re.compile(r"\bComputer Science\b", re.I)),
-    ("CSE", re.compile(r"\bCSE\b")),
-    ("Information Technology", re.compile(r"\bInformation Technology\b", re.I)),
-    ("IT", re.compile(r"\bIT\b")),
-    ("ECE", re.compile(r"\bECE\b")),
-    ("EEE", re.compile(r"\bEEE\b")),
-    ("Electronics", re.compile(r"\bElectronics\b", re.I)),
-    ("Electrical", re.compile(r"\bElectrical\b", re.I)),
-    ("Mechanical", re.compile(r"\bMechanical\b", re.I)),
-    ("Civil", re.compile(r"\bCivil\b", re.I)),
-    ("Data Science", re.compile(r"\bData Science\b", re.I)),
-    ("Artificial Intelligence", re.compile(r"\bArtificial Intelligence\b", re.I)),
-    ("Statistics", re.compile(r"\bStatistics\b", re.I)),
-    ("Mathematics", re.compile(r"\bMathematics\b", re.I)),
-    ("Software Engineering", re.compile(r"\bSoftware Engineering\b", re.I)),
-]
-
-# Non-technical / soft-skill cues for `keywords`.
 _SOFT_SKILL_PATTERNS = [
     ("Communication", re.compile(r"\bcommunication\b", re.I)),
     ("Leadership", re.compile(r"\bleadership\b", re.I)),
@@ -96,20 +62,9 @@ def _extract_experience(text: str) -> str:
     return m.group(0).strip() if m else ""
 
 
-def _extract_qualifications(text: str) -> List[str]:
-    found: List[str] = []
-    seen = set()
-    for display, pattern in _QUALIFICATION_PATTERNS:
-        if display not in seen and pattern.search(text):
-            found.append(display)
-            seen.add(display)
-    return found
-
-
 def _extract_soft_skills(text: str, exclude: List[str]) -> List[str]:
     excluded = {e.lower() for e in exclude}
-    found: List[str] = []
-    seen = set()
+    found, seen = [], set()
     for display, pattern in _SOFT_SKILL_PATTERNS:
         key = display.lower()
         if key in seen or key in excluded:
@@ -121,7 +76,7 @@ def _extract_soft_skills(text: str, exclude: List[str]) -> List[str]:
 
 
 def parse_jd(jd_id: str) -> ParsedJD:
-    jd = get_job_description(jd_id)  # raises JDProcessingError(404) if missing
+    jd = get_job_description(jd_id)
     text = jd.text
 
     sections = parsing.split_sections(text, JD_SECTION_ALIASES)
@@ -132,7 +87,7 @@ def parse_jd(jd_id: str) -> ParsedJD:
         jd_id=jd_id,
         role=_extract_role(text),
         required_skills=required_skills,
-        preferred_qualification=_extract_qualifications(text),
+        preferred_qualification=qualifications.extract_qualifications(text),
         experience=_extract_experience(text),
         keywords=_extract_soft_skills(text, exclude=required_skills),
     )

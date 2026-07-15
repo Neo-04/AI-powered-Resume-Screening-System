@@ -19,3 +19,17 @@ def match_experience(candidate_years: float, jd_experience: str) -> bool:
     if freshers_allowed or minimum <= 0:
         return True
     return candidate_years + 1e-9 >= minimum
+
+def has_year_requirement(jd_experience: str) -> bool:
+    minimum, freshers_allowed = _required_years(jd_experience)
+    return not freshers_allowed and minimum > 0
+
+def is_descriptive_requirement(jd_experience: str) -> bool:
+    text = (jd_experience or "").lower()
+    if not text.strip():
+        return False
+    if any(cue in text for cue in _FRESHER_CUES):
+        return False
+    if re.search(r"\d", text):  # if found any number rule based handles it
+        return False
+    return True

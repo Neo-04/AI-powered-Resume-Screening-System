@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import List
 
 _SKILLS_WEIGHT = 50
 _EXPERIENCE_WEIGHT = 30
@@ -10,17 +9,17 @@ ScoreBreakdown = namedtuple("ScoreBreakdown", "skill experience qualification so
 
 
 def calculate_scores(
-    matched_skills: List[str],
-    required_skills: List[str],
+    skill_credit: float,
+    required_skill_count: int,
     experience_match: bool,
-    qualification_score: int,
-    matched_keywords: List[str],
-    jd_keywords: List[str],
+    qualification_score: float,
+    soft_credit: float,
+    jd_keyword_count: int,
 ) -> ScoreBreakdown:
-    skill = round(len(matched_skills) / len(required_skills) * _SKILLS_WEIGHT) if required_skills else _SKILLS_WEIGHT
+    skill = round(skill_credit / required_skill_count * _SKILLS_WEIGHT) if required_skill_count else _SKILLS_WEIGHT
     experience = _EXPERIENCE_WEIGHT if experience_match else 0
-    qualification = max(0, min(_QUALIFICATION_WEIGHT, qualification_score))
-    soft = round(len(matched_keywords) / len(jd_keywords) * _SOFT_SKILLS_WEIGHT) if jd_keywords else _SOFT_SKILLS_WEIGHT
+    soft = round(soft_credit / jd_keyword_count * _SOFT_SKILLS_WEIGHT) if jd_keyword_count else _SOFT_SKILLS_WEIGHT
+    qualification = max(0, min(_QUALIFICATION_WEIGHT, round(qualification_score)))
 
     total = max(0, min(100, skill + experience + qualification + soft))
     return ScoreBreakdown(skill, experience, qualification, soft, total)
