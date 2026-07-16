@@ -3,9 +3,14 @@ import pytest
 from backend.app.schemas.jd import JobDescription, ParsedJD
 from backend.app.schemas.matching import MatchResult
 from backend.app.schemas.resume import ParsedResume
-from backend.app.services import (jd_parser, jd_service, matching_service,
-                                  resume_parser, semantic_matcher,
-                                  skill_matcher)
+from backend.app.services import (
+    jd_parser,
+    jd_service,
+    matching_service,
+    resume_parser,
+    semantic_matcher,
+    skill_matcher,
+)
 from backend.app.utils import skills_normalizer
 
 WEIGHT = 0.75

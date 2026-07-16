@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
-from backend.app.utils.skills_normalizer import (are_related_skills,
-                                                 canonical_skill)
+from backend.app.utils.skills_normalizer import are_related_skills, canonical_skill
 
 
 def _dedupe(skills: List[str]) -> List[str]:

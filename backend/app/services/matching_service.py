@@ -2,10 +2,17 @@ import logging
 from typing import List, Tuple
 
 from backend.app.schemas.matching import MatchResult
-from backend.app.services import (experience_matcher, jd_parser, jd_service,
-                                  qualification_matcher, resume_parser,
-                                  score_calculator, semantic_matcher,
-                                  skill_matcher, soft_skill_matcher)
+from backend.app.services import (
+    experience_matcher,
+    jd_parser,
+    jd_service,
+    qualification_matcher,
+    resume_parser,
+    score_calculator,
+    semantic_matcher,
+    skill_matcher,
+    soft_skill_matcher,
+)
 from backend.app.utils import semantic_config
 
 logger = logging.getLogger(__name__)

@@ -3,9 +3,15 @@ import pytest
 from backend.app.schemas.jd import JobDescription, ParsedJD
 from backend.app.schemas.matching import MatchResult
 from backend.app.schemas.resume import ParsedResume
-from backend.app.services import (jd_parser, jd_service, matching_service,
-                                  qualification_matcher, resume_parser,
-                                  score_calculator, semantic_matcher)
+from backend.app.services import (
+    jd_parser,
+    jd_service,
+    matching_service,
+    qualification_matcher,
+    resume_parser,
+    score_calculator,
+    semantic_matcher,
+)
 from backend.app.utils import qualifications
 
 W = qualification_matcher.QUALIFICATION_WEIGHT
