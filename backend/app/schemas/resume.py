@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel, Field
 
 
 @dataclass

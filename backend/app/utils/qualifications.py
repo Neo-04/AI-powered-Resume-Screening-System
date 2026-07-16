@@ -54,11 +54,21 @@ _DEGREE_GROUPS = {
 
 # longer / more specific phrases first; abbreviations matched case-sensitively
 _BRANCH_PATTERNS = [
-    ("Electronics and Communication Engineering",
-     _c(r"\b(?:Electronics and Communication|Electronics and Telecommunication)(?: Engineering)?\b")),
-    ("Electronics and Communication Engineering", _c(r"\bElectronics(?: Engineering)?\b")),
+    (
+        "Electronics and Communication Engineering",
+        _c(
+            r"\b(?:Electronics and Communication|Electronics and Telecommunication)(?: Engineering)?\b"
+        ),
+    ),
+    (
+        "Electronics and Communication Engineering",
+        _c(r"\bElectronics(?: Engineering)?\b"),
+    ),
     ("Electronics and Communication Engineering", _c(r"\bECE\b", False)),
-    ("Electrical Engineering", _c(r"\bElectrical(?: and Electronics)?(?: Engineering)?\b")),
+    (
+        "Electrical Engineering",
+        _c(r"\bElectrical(?: and Electronics)?(?: Engineering)?\b"),
+    ),
     ("Electrical Engineering", _c(r"\b(?:EEE|EE)\b", False)),
     ("Instrumentation Engineering", _c(r"\bInstrumentation(?: Engineering)?\b")),
     ("Computer Science", _c(r"\bComputer Science(?: and Engineering)?\b")),
@@ -74,12 +84,18 @@ _BRANCH_PATTERNS = [
     ("Machine Learning", _c(r"\bMachine Learning\b")),
     ("Aerospace Engineering", _c(r"\b(?:Aerospace|Aeronautical)(?: Engineering)?\b")),
     ("Automobile Engineering", _c(r"\b(?:Automobile|Automotive)(?: Engineering)?\b")),
-    ("Production Engineering", _c(r"\b(?:Production|Industrial|Manufacturing)(?: Engineering)?\b")),
+    (
+        "Production Engineering",
+        _c(r"\b(?:Production|Industrial|Manufacturing)(?: Engineering)?\b"),
+    ),
     ("Mechanical Engineering", _c(r"\bMechanical(?: Engineering)?\b")),
     ("Civil Engineering", _c(r"\bCivil(?: Engineering)?\b")),
     ("Architecture", _c(r"\bArchitecture\b")),
     ("Chemical Engineering", _c(r"\bChemical(?: Engineering)?\b")),
-    ("Biotechnology", _c(r"\b(?:Biotechnology|Bioengineering|Biomedical(?: Engineering)?)\b")),
+    (
+        "Biotechnology",
+        _c(r"\b(?:Biotechnology|Bioengineering|Biomedical(?: Engineering)?)\b"),
+    ),
     ("Chemistry", _c(r"\bChemistry\b")),
     ("Physics", _c(r"\bPhysics\b")),
     ("Mathematics", _c(r"\b(?:Mathematics|Maths|Math)\b")),
@@ -87,7 +103,10 @@ _BRANCH_PATTERNS = [
     ("Economics", _c(r"\bEconomics\b")),
     ("Finance", _c(r"\b(?:Finance|Financial Management)\b")),
     ("Accounting", _c(r"\b(?:Accounting|Accountancy)\b")),
-    ("Business Administration", _c(r"\b(?:Business Administration|Business Management|Management Studies)\b")),
+    (
+        "Business Administration",
+        _c(r"\b(?:Business Administration|Business Management|Management Studies)\b"),
+    ),
     ("Marketing", _c(r"\bMarketing\b")),
     ("Human Resources", _c(r"\b(?:Human Resources?|HR)\b")),
     ("Commerce", _c(r"\bCommerce\b")),
@@ -97,12 +116,26 @@ _BRANCH_PATTERNS = [
 
 # fields inside a group count as closely related; extend by adding to a group
 _RELATED_BRANCH_GROUPS = [
-    {"Computer Science", "Information Technology", "Software Engineering",
-     "Computer Engineering", "Data Science", "Artificial Intelligence", "Machine Learning"},
-    {"Electrical Engineering", "Electronics and Communication Engineering",
-     "Instrumentation Engineering"},
-    {"Mechanical Engineering", "Automobile Engineering", "Aerospace Engineering",
-     "Production Engineering"},
+    {
+        "Computer Science",
+        "Information Technology",
+        "Software Engineering",
+        "Computer Engineering",
+        "Data Science",
+        "Artificial Intelligence",
+        "Machine Learning",
+    },
+    {
+        "Electrical Engineering",
+        "Electronics and Communication Engineering",
+        "Instrumentation Engineering",
+    },
+    {
+        "Mechanical Engineering",
+        "Automobile Engineering",
+        "Aerospace Engineering",
+        "Production Engineering",
+    },
     {"Civil Engineering", "Architecture"},
     {"Mathematics", "Statistics", "Data Science"},
     {"Commerce", "Finance", "Accounting", "Business Administration", "Economics"},
@@ -186,6 +219,11 @@ def years_of_experience(lines: List[str]) -> float:
     text = " ".join(lines).lower()
     if not text.strip():
         return 0.0
-    years = [float(x) for x in re.findall(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years|yrs|year)", text)]
-    months = [float(x) / 12 for x in re.findall(r"(\d+)\s*(?:months|month|mos)\b", text)]
+    years = [
+        float(x)
+        for x in re.findall(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years|yrs|year)", text)
+    ]
+    months = [
+        float(x) / 12 for x in re.findall(r"(\d+)\s*(?:months|month|mos)\b", text)
+    ]
     return round(max(years + months + [0.0]), 1)

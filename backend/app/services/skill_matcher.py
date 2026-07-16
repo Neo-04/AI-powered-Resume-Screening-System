@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
-from backend.app.utils.skills_normalizer import are_related_skills, canonical_skill
+from backend.app.utils.skills_normalizer import (are_related_skills,
+                                                 canonical_skill)
 
 
 def _dedupe(skills: List[str]) -> List[str]:
@@ -13,17 +14,27 @@ def _dedupe(skills: List[str]) -> List[str]:
     return out
 
 
-def match_skills(resume_skills: List[str], required_skills: List[str]) -> Tuple[List[str], List[str], List[str]]:
+def match_skills(
+    resume_skills: List[str], required_skills: List[str]
+) -> Tuple[List[str], List[str], List[str]]:
     required_canonical = {canonical_skill(s) for s in required_skills}
     resume_canonical = {canonical_skill(s) for s in resume_skills}
 
-    matched = _dedupe([s for s in resume_skills if canonical_skill(s) in required_canonical])
-    missing = _dedupe([s for s in required_skills if canonical_skill(s) not in resume_canonical])
-    additional = _dedupe([s for s in resume_skills if canonical_skill(s) not in required_canonical])
+    matched = _dedupe(
+        [s for s in resume_skills if canonical_skill(s) in required_canonical]
+    )
+    missing = _dedupe(
+        [s for s in required_skills if canonical_skill(s) not in resume_canonical]
+    )
+    additional = _dedupe(
+        [s for s in resume_skills if canonical_skill(s) not in required_canonical]
+    )
     return matched, missing, additional
 
 
-def match_related(missing_required: List[str], unmatched_resume: List[str]) -> List[Tuple[str, str]]:
+def match_related(
+    missing_required: List[str], unmatched_resume: List[str]
+) -> List[Tuple[str, str]]:
     """Pair each unmatched JD skill with a related resume skill.
 
     A resume skill is consumed by the first pairing it satisfies.

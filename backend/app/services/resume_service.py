@@ -32,10 +32,12 @@ def process_resume(
         raw_text = extract_text_from_pdf(file_bytes)
     except Exception:
         raise ResumeProcessingError("Could not read the PDF file.", status_code=422)
-    
+
     text = clean_text(raw_text)
     if not text:
-        raise ResumeProcessingError("No extractable text found in the PDF.", status_code=422)
+        raise ResumeProcessingError(
+            "No extractable text found in the PDF.", status_code=422
+        )
 
     resume_id = uuid.uuid4().hex
     resume = Resume(

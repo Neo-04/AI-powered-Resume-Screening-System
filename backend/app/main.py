@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-from backend.app.api.routes import router
 from backend.app.api.jd_routes import router as jd_router
-from backend.app.api.parse_routes import router as parse_router
 from backend.app.api.matching_routes import router as matching_router
+from backend.app.api.parse_routes import router as parse_router
+from backend.app.api.routes import router
 
 app = FastAPI(title="AI Resume Screening System", version="0.1.0")
 

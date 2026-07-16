@@ -4,8 +4,12 @@ from typing import Dict, List, Tuple
 
 from backend.app.utils import qualifications
 
-_NO_MATCH_REASON = "The candidate's educational qualification does not satisfy the job requirements."
-_NOT_SPECIFIED_REASON = "The job description does not specify a qualification requirement."
+_NO_MATCH_REASON = (
+    "The candidate's educational qualification does not satisfy the job requirements."
+)
+_NOT_SPECIFIED_REASON = (
+    "The job description does not specify a qualification requirement."
+)
 
 QUALIFICATION_WEIGHT = 15
 _DEGREE_POINTS = 9
@@ -40,7 +44,9 @@ _RELEVANT_FIELD_RE = re.compile(
 _DEGREE_WORD_RE = re.compile(r"\b(?:degree|graduation|graduate|qualification)\b", re.I)
 
 
-def _evaluate(resume_degree: str, resume_branch: str, jd_qualifications: List[str]) -> Dict[str, bool]:
+def _evaluate(
+    resume_degree: str, resume_branch: str, jd_qualifications: List[str]
+) -> Dict[str, bool]:
     jd_degrees, jd_branches = qualifications.split_jd_qualifications(jd_qualifications)
     resume_deg = qualifications.canonical_degree(resume_degree)
     resume_br = qualifications.canonical_branch(resume_branch)
@@ -48,14 +54,22 @@ def _evaluate(resume_degree: str, resume_branch: str, jd_qualifications: List[st
     has_degree_req, has_branch_req = bool(jd_degrees), bool(jd_branches)
 
     specific_degree = has_degree_req and any(
-        (not d.generic) and qualifications.degrees_equivalent(resume_deg, d) for d in jd_degrees
+        (not d.generic) and qualifications.degrees_equivalent(resume_deg, d)
+        for d in jd_degrees
     )
-    generic_degree = has_degree_req and not specific_degree and any(
-        d.generic and qualifications.degrees_equivalent(resume_deg, d) for d in jd_degrees
+    generic_degree = (
+        has_degree_req
+        and not specific_degree
+        and any(
+            d.generic and qualifications.degrees_equivalent(resume_deg, d)
+            for d in jd_degrees
+        )
     )
     branch_exact = has_branch_req and bool(resume_br) and resume_br in jd_branches
     branch_related = (
-        has_branch_req and not branch_exact and bool(resume_br)
+        has_branch_req
+        and not branch_exact
+        and bool(resume_br)
         and any(qualifications.is_related_branch(resume_br, b) for b in jd_branches)
     )
     return {
@@ -72,12 +86,13 @@ def _evaluate(resume_degree: str, resume_branch: str, jd_qualifications: List[st
 
 
 def _qualification_context(jd_qualifications: List[str], jd_text: str) -> str:
-    #JD lines that actually carry a qualification signal.
+    # JD lines that actually carry a qualification signal.
 
-    #Scanning the whole JD would pick up unrelated cues such as a 'Preferred Skills' heading.
+    # Scanning the whole JD would pick up unrelated cues such as a 'Preferred Skills' heading.
     lines = [line.strip() for line in (jd_text or "").splitlines() if line.strip()]
     relevant = [
-        line for line in lines
+        line
+        for line in lines
         if qualifications.first_degree(line)
         or qualifications.canonical_branch(line)
         or _RELEVANT_FIELD_RE.search(line)
@@ -86,7 +101,10 @@ def _qualification_context(jd_qualifications: List[str], jd_text: str) -> str:
 
 
 def _classify(signals: Dict[str, bool], generic_field: bool, preferred: bool) -> str:
-    has_degree_req, has_branch_req = signals["has_degree_req"], signals["has_branch_req"]
+    has_degree_req, has_branch_req = (
+        signals["has_degree_req"],
+        signals["has_branch_req"],
+    )
 
     if not has_degree_req and not has_branch_req:
         return GENERIC_RELEVANT_FIELD if generic_field else NOT_MENTIONED
@@ -151,10 +169,10 @@ def assess(
     jd_qualifications: List[str],
     jd_text: str = "",
 ) -> QualificationAssessment:
-    #Qualification is out of 15: degree 9 + branch 6.
+    # Qualification is out of 15: degree 9 + branch 6.
 
     # A component the JD never states earns full credit, so an incomplete JD is not treated as a candidate mismatch.
-    
+
     signals = _evaluate(resume_degree, resume_branch, jd_qualifications)
     context = _qualification_context(jd_qualifications, jd_text)
     generic_field = bool(_RELEVANT_FIELD_RE.search(context))
@@ -196,10 +214,20 @@ def assess(
     )
 
 
-def match_qualification(resume_degree: str, resume_branch: str, jd_qualifications: List[str], jd_text: str = "") -> Tuple[bool, str]:
+def match_qualification(
+    resume_degree: str,
+    resume_branch: str,
+    jd_qualifications: List[str],
+    jd_text: str = "",
+) -> Tuple[bool, str]:
     assessment = assess(resume_degree, resume_branch, jd_qualifications, jd_text)
     return assessment.matched, assessment.reason
 
 
-def qualification_score(resume_degree: str, resume_branch: str, jd_qualifications: List[str], jd_text: str = "") -> int:
+def qualification_score(
+    resume_degree: str,
+    resume_branch: str,
+    jd_qualifications: List[str],
+    jd_text: str = "",
+) -> int:
     return assess(resume_degree, resume_branch, jd_qualifications, jd_text).score

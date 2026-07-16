@@ -52,7 +52,9 @@ def process_job_description(
 
     cleaned = clean_text(raw_text)
     if not cleaned:
-        raise JDProcessingError("No extractable text found in the file.", status_code=422)
+        raise JDProcessingError(
+            "No extractable text found in the file.", status_code=422
+        )
 
     jd_id = uuid.uuid4().hex
     record = JobDescription(

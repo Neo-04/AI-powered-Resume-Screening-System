@@ -9,8 +9,12 @@ structured_jd_store: dict[str, ParsedJD] = {}
 
 JD_SECTION_ALIASES = {
     "required": [
-        "required skills", "requirements", "must have", "required qualifications",
-        "skills required", "key skills",
+        "required skills",
+        "requirements",
+        "must have",
+        "required qualifications",
+        "skills required",
+        "key skills",
     ],
 }
 
@@ -31,7 +35,10 @@ _SOFT_SKILL_PATTERNS = [
     ("Adaptability", re.compile(r"\badaptab(?:ility|le)\b", re.I)),
     ("Presentation skills", re.compile(r"\bpresentation(?:\s+skills)?\b", re.I)),
     ("Time management", re.compile(r"\btime\s+management\b", re.I)),
-    ("Business understanding", re.compile(r"\bbusiness\s+(?:understanding|acumen)\b", re.I)),
+    (
+        "Business understanding",
+        re.compile(r"\bbusiness\s+(?:understanding|acumen)\b", re.I),
+    ),
     ("Customer focus", re.compile(r"\bcustomer\s+(?:focus|centric)\b", re.I)),
     ("Interpersonal skills", re.compile(r"\binterpersonal\b", re.I)),
     ("Attention to detail", re.compile(r"\battention\s+to\s+detail\b", re.I)),

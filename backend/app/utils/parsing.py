@@ -53,15 +53,67 @@ def split_sections(text: str, aliases: Dict[str, List[str]]) -> Dict[str, List[s
 
 
 SKILL_KEYWORDS: List[str] = [
-    "Python", "Java", "JavaScript", "TypeScript", "C++", "C#", "Golang", "Rust",
-    "Ruby", "PHP", "Swift", "Kotlin", "Scala", "MATLAB", "SQL", "HTML", "CSS",
-    "React", "Angular", "Vue", "Node.js", "Express", "Django", "Flask", "FastAPI",
-    "Spring", ".NET", "Machine Learning", "ML", "Deep Learning", "NLP",
-    "Computer Vision", "AI", "TensorFlow", "PyTorch", "Keras", "Scikit-learn",
-    "Pandas", "NumPy", "AWS", "Azure", "GCP", "Docker", "Kubernetes", "Git",
-    "Linux", "Jenkins", "CI/CD", "MongoDB", "PostgreSQL", "MySQL", "Redis",
-    "Kafka", "Spark", "Hadoop", "REST", "GraphQL", "Microservices", "Tableau",
-    "Power BI", "Excel",
+    "Python",
+    "Java",
+    "JavaScript",
+    "TypeScript",
+    "C++",
+    "C#",
+    "Golang",
+    "Rust",
+    "Ruby",
+    "PHP",
+    "Swift",
+    "Kotlin",
+    "Scala",
+    "MATLAB",
+    "SQL",
+    "HTML",
+    "CSS",
+    "React",
+    "Angular",
+    "Vue",
+    "Node.js",
+    "Express",
+    "Django",
+    "Flask",
+    "FastAPI",
+    "Spring",
+    ".NET",
+    "Machine Learning",
+    "ML",
+    "Deep Learning",
+    "NLP",
+    "Computer Vision",
+    "AI",
+    "TensorFlow",
+    "PyTorch",
+    "Keras",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "AWS",
+    "Azure",
+    "GCP",
+    "Docker",
+    "Kubernetes",
+    "Git",
+    "Linux",
+    "Jenkins",
+    "CI/CD",
+    "MongoDB",
+    "PostgreSQL",
+    "MySQL",
+    "Redis",
+    "Kafka",
+    "Spark",
+    "Hadoop",
+    "REST",
+    "GraphQL",
+    "Microservices",
+    "Tableau",
+    "Power BI",
+    "Excel",
 ]
 
 
@@ -92,7 +144,9 @@ def section_items(lines: List[str], max_items: int = 25) -> List[str]:
     return items
 
 
-def summarize_items(lines: List[str], max_items: int = 10, max_len: int = 140) -> List[str]:
+def summarize_items(
+    lines: List[str], max_items: int = 10, max_len: int = 140
+) -> List[str]:
     out: List[str] = []
     for line in lines:
         cleaned = clean_bullet(line)

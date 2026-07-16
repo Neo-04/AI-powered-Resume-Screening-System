@@ -3,45 +3,97 @@ from typing import Dict, List, Optional
 
 from backend.app.schemas.resume import ParsedResume
 from backend.app.services.resume_service import get_resume
-from backend.app.utils import parsing
-from backend.app.utils import qualifications
+from backend.app.utils import parsing, qualifications
 
-# Optional structured storage 
+# Optional structured storage
 structured_resume_store: dict[str, ParsedResume] = {}
 
 # Unchanged — kept exactly as defined.
 RESUME_SECTION_ALIASES = {
     "skills": [
-        "skills", "technical skills", "key skills", "core competencies", "technologies",
+        "skills",
+        "technical skills",
+        "key skills",
+        "core competencies",
+        "technologies",
     ],
     "education": [
-        "education", "academics", "academic background", "qualifications",
+        "education",
+        "academics",
+        "academic background",
+        "qualifications",
     ],
     "experience": [
-        "experience", "work experience", "professional experience", "employment",
-        "internship", "internships", "work history",
+        "experience",
+        "work experience",
+        "professional experience",
+        "employment",
+        "internship",
+        "internships",
+        "work history",
     ],
     "projects": [
-        "projects", "personal projects", "academic projects", "key projects",
+        "projects",
+        "personal projects",
+        "academic projects",
+        "key projects",
     ],
     "achievements": [
-        "achievements", "awards", "honors", "honours", "accomplishments",
-        "extra curricular", "extracurricular", "activities", "competitions",
-        "certifications", "awards and honors", "honors and awards",
+        "achievements",
+        "awards",
+        "honors",
+        "honours",
+        "accomplishments",
+        "extra curricular",
+        "extracurricular",
+        "activities",
+        "competitions",
+        "certifications",
+        "awards and honors",
+        "honors and awards",
     ],
 }
 
 # Extra words for common non-aliased sections, all displayed in achievements.
 _EXTRA_ACHIEVEMENT_CUES = {
-    "competitive", "programming", "coding", "dsa", "problem", "leetcode",
-    "codeforces", "hackathon", "hackathons", "contest", "contests", "profiles",
-    "positions", "responsibility", "responsibilities", "volunteer",
-    "volunteering", "hobbies", "interests", "publications", "patents",
+    "competitive",
+    "programming",
+    "coding",
+    "dsa",
+    "problem",
+    "leetcode",
+    "codeforces",
+    "hackathon",
+    "hackathons",
+    "contest",
+    "contests",
+    "profiles",
+    "positions",
+    "responsibility",
+    "responsibilities",
+    "volunteer",
+    "volunteering",
+    "hobbies",
+    "interests",
+    "publications",
+    "patents",
 }
 
 _HEADER_NORMALIZE_RE = re.compile(r"[^a-z& ]+")
 _HEADER_STOPWORDS = {
-    "and", "or", "of", "the", "in", "for", "to", "a", "an", "&", "with", "on", "my",
+    "and",
+    "or",
+    "of",
+    "the",
+    "in",
+    "for",
+    "to",
+    "a",
+    "an",
+    "&",
+    "with",
+    "on",
+    "my",
 }
 
 _HEADER_LOOKUP = {
@@ -64,7 +116,7 @@ def _build_category_keywords(aliases: Dict[str, List[str]]) -> Dict[str, str]:
     }
 
 
-#extra achievement cues are added to the category cues for achievements section
+# extra achievement cues are added to the category cues for achievements section
 _CATEGORY_CUES: Dict[str, str] = {
     **{token: "achievements" for token in _EXTRA_ACHIEVEMENT_CUES},
     **_build_category_keywords(RESUME_SECTION_ALIASES),
@@ -89,7 +141,7 @@ def _is_bullet(line: str) -> bool:
 
 
 def _looks_like_header(line: str) -> bool:
-    #Rule-based heuristic for a section header (no ML)
+    # Rule-based heuristic for a section header (no ML)
     core = line.rstrip(":").strip()
     if not (1 <= len(core) <= 45):
         return False
@@ -103,7 +155,9 @@ def _looks_like_header(line: str) -> bool:
     alpha_words = [w for w in words if any(c.isalpha() for c in w)]
     if not alpha_words:
         return False
-    significant = [w for w in alpha_words if w.lower() not in _HEADER_STOPWORDS] or alpha_words
+    significant = [
+        w for w in alpha_words if w.lower() not in _HEADER_STOPWORDS
+    ] or alpha_words
     capitalised = sum(1 for w in significant if w[0].isupper())
     return capitalised / len(significant) >= 0.6
 
@@ -146,7 +200,9 @@ def parse_resume(resume_id: str) -> ParsedResume:
 
     sections = _split_resume_sections(text)
 
-    skills_source = " ".join(sections.get("skills", [])) if sections.get("skills") else text
+    skills_source = (
+        " ".join(sections.get("skills", [])) if sections.get("skills") else text
+    )
 
     education_text = " ".join(sections.get("education", []))
 
@@ -160,7 +216,9 @@ def parse_resume(resume_id: str) -> ParsedResume:
         achievements=parsing.summarize_items(sections.get("achievements", [])),
         degree=qualifications.first_degree(education_text),
         branch=qualifications.first_branch(education_text),
-        experience_years=qualifications.years_of_experience(sections.get("experience", [])),
+        experience_years=qualifications.years_of_experience(
+            sections.get("experience", [])
+        ),
     )
 
     structured_resume_store[resume_id] = parsed

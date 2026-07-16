@@ -4,7 +4,9 @@ from backend.app.utils import embeddings
 from backend.app.utils import semantic_config as cfg
 
 
-def match_skills(missing_required: List[str], unmatched_resume: List[str]) -> List[Tuple[str, str, float]]:
+def match_skills(
+    missing_required: List[str], unmatched_resume: List[str]
+) -> List[Tuple[str, str, float]]:
     """Best-first pairing above threshold; each side is used at most once."""
     if not missing_required or not unmatched_resume:
         return []
@@ -30,7 +32,9 @@ def match_skills(missing_required: List[str], unmatched_resume: List[str]) -> Li
     return hits
 
 
-def match_keywords(unmatched_keywords: List[str], resume_text: str) -> List[Tuple[str, float]]:
+def match_keywords(
+    unmatched_keywords: List[str], resume_text: str
+) -> List[Tuple[str, float]]:
     if not unmatched_keywords or not resume_text.strip():
         return []
     keyword_vecs = embeddings.encode_texts(unmatched_keywords)
@@ -43,17 +47,22 @@ def match_keywords(unmatched_keywords: List[str], resume_text: str) -> List[Tupl
     return hits
 
 
-def qualification_matches(resume_qualification_text: str, jd_qualifications: List[str]) -> Tuple[bool, float]:
+def qualification_matches(
+    resume_qualification_text: str, jd_qualifications: List[str]
+) -> Tuple[bool, float]:
     if not resume_qualification_text.strip() or not jd_qualifications:
         return False, 0.0
     import numpy as np
+
     resume_vec = embeddings.encode_text(resume_qualification_text)
     jd_vecs = embeddings.encode_texts(jd_qualifications)
     score = float(np.max(jd_vecs @ resume_vec))
     return score >= cfg.QUALIFICATION_SIMILARITY_THRESHOLD, score
 
 
-def experience_matches(resume_experience_text: str, jd_experience_text: str) -> Tuple[bool, float]:
+def experience_matches(
+    resume_experience_text: str, jd_experience_text: str
+) -> Tuple[bool, float]:
     if not resume_experience_text.strip() or not jd_experience_text.strip():
         return False, 0.0
     resume_vec = embeddings.encode_text(resume_experience_text)
