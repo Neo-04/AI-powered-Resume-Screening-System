@@ -9,6 +9,7 @@ class MatchRequest(BaseModel):
 
 
 class MatchResult(BaseModel):
+    match_id: str = ""
     match_score: int
     skill_score: int = 0
     experience_score: int = 0

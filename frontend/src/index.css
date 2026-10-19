@@ -486,6 +486,80 @@ input[type='file'] {
   margin-bottom: 1rem;
 }
 
+/* ---------- History panel ---------- */
+
+.history-panel {
+  margin-top: 1rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.history-table th,
+.history-table td {
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  white-space: nowrap;
+}
+
+.history-table th {
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.history-table td {
+  border-bottom: 1px solid var(--border);
+}
+
+.history-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.id-cell {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.badge-good {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.badge-medium {
+  background: #fefce8;
+  color: #b45309;
+}
+
+.badge-low {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
 @media (max-width: 900px) {
   .workflow-grid,
   .score-breakdown {

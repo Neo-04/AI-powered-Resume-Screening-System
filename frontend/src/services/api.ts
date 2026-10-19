@@ -1,6 +1,9 @@
 import type {
   ApiErrorDetail,
   HealthResponse,
+  HistoryJD,
+  HistoryMatch,
+  HistoryResume,
   JobDescription,
   MatchRequest,
   MatchResult,
@@ -108,4 +111,18 @@ export function runMatch(payload: MatchRequest): Promise<MatchResult> {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+}
+
+/* ---------- History ---------- */
+
+export function fetchHistoryResumes(): Promise<HistoryResume[]> {
+  return request<HistoryResume[]>('/history/resumes')
+}
+
+export function fetchHistoryJDs(): Promise<HistoryJD[]> {
+  return request<HistoryJD[]>('/history/jds')
+}
+
+export function fetchHistoryMatches(): Promise<HistoryMatch[]> {
+  return request<HistoryMatch[]>('/history/matches')
 }

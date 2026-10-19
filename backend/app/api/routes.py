@@ -19,3 +19,11 @@ async def upload_resume(file: UploadFile = File(...)):
         )
     except ResumeProcessingError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc))
+
+
+@router.get("/resume/{resume_id}", response_model=ResumeUploadResponse)
+async def get_resume(resume_id: str):
+    try:
+        return resume_service.get_resume(resume_id)
+    except ResumeProcessingError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc))

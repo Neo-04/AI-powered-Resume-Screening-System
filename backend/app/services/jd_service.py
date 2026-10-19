@@ -1,5 +1,7 @@
 import uuid
 
+from backend.app.core.config import settings
+from backend.app.database.supabase_client import supabase
 from backend.app.schemas.jd import JobDescription
 from backend.app.utils.pdf_reader import extract_text_from_pdf
 from backend.app.utils.text_cleaner import clean_text
@@ -13,14 +15,11 @@ class JDProcessingError(Exception):
         self.status_code = status_code
 
 
-# Simple in-memory store. Swap for a real datastore in a later phase.
-_jd_store: dict[str, JobDescription] = {}
-
 _PDF_CONTENT_TYPE = "application/pdf"
 _TXT_CONTENT_TYPES = {"text/plain", "application/octet-stream"}
 
 
-def _extract_text(filename: str, content_type: str, file_bytes: bytes) -> str:
+def _extract_text_from_file(filename: str, content_type: str, file_bytes: bytes) -> str:
     name = (filename or "").lower()
 
     if content_type == _PDF_CONTENT_TYPE or name.endswith(".pdf"):
@@ -35,16 +34,28 @@ def _extract_text(filename: str, content_type: str, file_bytes: bytes) -> str:
     raise JDProcessingError("Only PDF or TXT files are supported.", status_code=415)
 
 
-def process_job_description(
+def _upload_to_storage(filename: str, file_bytes: bytes, content_type: str) -> str:
+    """Upload file to Supabase Storage and return the storage path."""
+    unique_name = f"jds/{uuid.uuid4().hex}_{filename}"
+    supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
+        path=unique_name,
+        file=file_bytes,
+        file_options={"content-type": content_type},
+    )
+    return unique_name
+
+
+def process_jd_file(
     filename: str,
     content_type: str,
     file_bytes: bytes,
 ) -> JobDescription:
+    """Process an uploaded JD file (PDF/TXT) — uploads to storage, extracts text."""
     if not file_bytes:
         raise JDProcessingError("Uploaded file is empty.", status_code=400)
 
     try:
-        raw_text = _extract_text(filename, content_type, file_bytes)
+        raw_text = _extract_text_from_file(filename, content_type, file_bytes)
     except JDProcessingError:
         raise
     except Exception:
@@ -56,19 +67,75 @@ def process_job_description(
             "No extractable text found in the file.", status_code=422
         )
 
-    jd_id = uuid.uuid4().hex
-    record = JobDescription(
-        jd_id=jd_id,
+    # Upload original file to Supabase Storage
+    try:
+        storage_path = _upload_to_storage(filename, file_bytes, content_type)
+    except Exception:
+        storage_path = ""
+
+    # Insert into Supabase database
+    row = {
+        "original_filename": filename,
+        "storage_path": storage_path,
+        "raw_text": raw_text,
+        "extracted_text": cleaned,
+    }
+    result = supabase.table("job_descriptions").insert(row).execute()
+    record = result.data[0]
+
+    return JobDescription(
+        jd_id=record["id"],
         filename=filename,
         char_count=len(cleaned),
         text=cleaned,
     )
-    _jd_store[jd_id] = record
-    return record
+
+
+def process_jd_text(raw_text: str) -> JobDescription:
+    """Process pasted JD text — no file upload, stores raw text directly."""
+    if not raw_text or not raw_text.strip():
+        raise JDProcessingError("JD text cannot be empty.", status_code=400)
+
+    cleaned = clean_text(raw_text)
+    if not cleaned:
+        raise JDProcessingError(
+            "No usable text found in the input.", status_code=422
+        )
+
+    # Insert into Supabase database (no storage_path, no file)
+    row = {
+        "original_filename": "pasted_jd.txt",
+        "storage_path": "",
+        "raw_text": raw_text,
+        "extracted_text": cleaned,
+    }
+    result = supabase.table("job_descriptions").insert(row).execute()
+    record = result.data[0]
+
+    return JobDescription(
+        jd_id=record["id"],
+        filename="pasted_jd.txt",
+        char_count=len(cleaned),
+        text=cleaned,
+    )
 
 
 def get_job_description(jd_id: str) -> JobDescription:
-    record = _jd_store.get(jd_id)
-    if record is None:
+    """Fetch a job description from Supabase by its UUID."""
+    result = (
+        supabase.table("job_descriptions")
+        .select("id, original_filename, extracted_text")
+        .eq("id", jd_id)
+        .execute()
+    )
+    if not result.data:
         raise JDProcessingError("Job description not found.", status_code=404)
-    return record
+
+    record = result.data[0]
+    text = record["extracted_text"] or ""
+    return JobDescription(
+        jd_id=record["id"],
+        filename=record["original_filename"] or "",
+        char_count=len(text),
+        text=text,
+    )

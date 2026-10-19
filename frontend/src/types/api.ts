@@ -66,3 +66,32 @@ export interface ValidationErrorItem {
 }
 
 export type ApiErrorDetail = string | ValidationErrorItem[]
+
+/* ---------- History list items (from GET /history/*) ---------- */
+
+export interface HistoryResume {
+  id: string
+  original_filename: string
+  storage_path: string
+  created_at: string
+}
+
+export interface HistoryJD {
+  id: string
+  title: string | null
+  original_filename: string | null
+  storage_path: string | null
+  created_at: string
+}
+
+export interface HistoryMatch {
+  id: string
+  resume_id: string
+  jd_id: string
+  overall_score: number | null
+  skill_score: number | null
+  experience_score: number | null
+  qualification_score: number | null
+  soft_skill_score: number | null
+  created_at: string
+}

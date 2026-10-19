@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from backend.app.schemas.resume import ParsedResume
 from backend.app.services.resume_service import get_resume
 from backend.app.utils import parsing, qualifications
+from backend.app.database.supabase_client import supabase
 
 # Optional structured storage
 structured_resume_store: dict[str, ParsedResume] = {}
@@ -222,4 +223,13 @@ def parse_resume(resume_id: str) -> ParsedResume:
     )
 
     structured_resume_store[resume_id] = parsed
+
+    # Persist parsed data to Supabase
+    try:
+        supabase.table("resumes").update(
+            {"parsed_data": parsed.model_dump()}
+        ).eq("id", resume_id).execute()
+    except Exception:
+        pass  # Cache still holds it; DB update is best-effort
+
     return parsed

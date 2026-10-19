@@ -20,10 +20,16 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     DATABASE_URL: Optional[str] = None
 
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_BUCKET: str = "documents"
+
     SECRET_KEY: str = "changeme"
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=("backend/.env", ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     @property

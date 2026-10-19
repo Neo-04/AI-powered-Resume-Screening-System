@@ -4,6 +4,7 @@ from typing import List
 from backend.app.schemas.jd import ParsedJD
 from backend.app.services.jd_service import get_job_description
 from backend.app.utils import parsing, qualifications
+from backend.app.database.supabase_client import supabase
 
 structured_jd_store: dict[str, ParsedJD] = {}
 
@@ -100,4 +101,13 @@ def parse_jd(jd_id: str) -> ParsedJD:
     )
 
     structured_jd_store[jd_id] = parsed
+
+    # Persist parsed data to Supabase
+    try:
+        supabase.table("job_descriptions").update(
+            {"parsed_data": parsed.model_dump(), "title": parsed.role}
+        ).eq("id", jd_id).execute()
+    except Exception:
+        pass  # Cache still holds it; DB update is best-effort
+
     return parsed

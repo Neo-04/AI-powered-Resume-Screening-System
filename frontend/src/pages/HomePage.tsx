@@ -6,6 +6,7 @@ import MatchResults from '../components/MatchResults'
 import ParsedJdCard from '../components/ParsedJdCard'
 import ParsedResumeCard from '../components/ParsedResumeCard'
 import WorkflowStepper from '../components/WorkflowStepper'
+import HistoryPanel from '../components/HistoryPanel'
 import type { ScreeningWorkflow } from '../hooks/useScreeningWorkflow'
 import { checkHealth } from '../services/api'
 
@@ -339,6 +340,8 @@ export default function HomePage({ workflow }: HomePageProps) {
           <MatchResults data={matchResult.data} />
         )}
       </section>
+
+      <HistoryPanel />
     </div>
   )
 }

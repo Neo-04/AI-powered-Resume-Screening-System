@@ -6,8 +6,6 @@ from pydantic import BaseModel, Field
 
 @dataclass
 class Resume:
-    """Internal storage model for an uploaded resume (not the API response)."""
-
     resume_id: str
     filename: str
     text: str

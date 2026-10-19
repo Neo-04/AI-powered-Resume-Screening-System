@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ai-resume-screening-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false          # set manually in Render dashboard
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: documents
+      - key: ALLOWED_ORIGINS
+        sync: false          # set to your Vercel URL after first deploy
+      - key: GEMINI_API_KEY
+        sync: false

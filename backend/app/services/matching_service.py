@@ -14,6 +14,7 @@ from backend.app.services import (
     soft_skill_matcher,
 )
 from backend.app.utils import semantic_config
+from backend.app.database.supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +156,7 @@ def run_match(resume_id: str, jd_id: str) -> MatchResult:
         len(jd.keywords),
     )
 
-    return MatchResult(
+    result = MatchResult(
         match_score=scores.total,
         skill_score=scores.skill,
         experience_score=scores.experience,
@@ -170,3 +171,23 @@ def run_match(resume_id: str, jd_id: str) -> MatchResult:
         matched_keywords=matched_keywords,
         recommendation=score_calculator.recommendation(scores.total),
     )
+
+    # Persist match result to Supabase
+    try:
+        row = {
+            "resume_id": resume_id,
+            "jd_id": jd_id,
+            "overall_score": scores.total,
+            "skill_score": scores.skill,
+            "experience_score": scores.experience,
+            "qualification_score": scores.qualification,
+            "soft_skill_score": scores.soft,
+            "result_data": result.model_dump(),
+        }
+        db_result = supabase.table("match_results").insert(row).execute()
+        if db_result.data:
+            result.match_id = db_result.data[0]["id"]
+    except Exception:
+        logger.warning("Failed to persist match result to Supabase.", exc_info=True)
+
+    return result
