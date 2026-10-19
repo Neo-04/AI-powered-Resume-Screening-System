@@ -11,18 +11,27 @@ from backend.app.api.history_routes import router as history_router
 
 app = FastAPI(title="AI Resume Screening System", version="0.1.0")
 
-# CORS — set ALLOWED_ORIGINS in Render env vars to your Vercel URL(s)
-# e.g. "https://your-app.vercel.app,https://your-app-git-main.vercel.app"
-_raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
-allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS configuration
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+if _raw_origins and _raw_origins != "*":
+    origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_origin_regex=r"https://.*\.vercel\.app",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_origin_regex=r"https://.*\.vercel\.app",
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(router)
 app.include_router(jd_router)
